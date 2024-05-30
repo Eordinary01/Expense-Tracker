@@ -26,8 +26,8 @@ const Login = () => {
   });
   const { email, password, name } = formData;
   const navigate = useNavigate();
-  const bgColor = useColorModeValue('purple.100', 'purple.900');
-  const textColor = useColorModeValue('purple.900', 'white');
+  const bgColor = useColorModeValue('purple.300', 'purple.700');
+  const textColor = useColorModeValue('black', 'white');
 
   useEffect(() => {
     if (message === 'Login successful. Redirecting to Dashboard!') {
@@ -56,7 +56,7 @@ const Login = () => {
           py={12}
           borderRadius={8}
           boxShadow="lg"
-          bg="white"
+          bg="purple.800"
         >
           <Box textAlign="center">
             <Heading color={textColor}>Login</Heading>

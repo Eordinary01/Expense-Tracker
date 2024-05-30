@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8800/api";
+const API_URL = "https://expense-tracker-738d.onrender.com/api";
 
 const register = async (userData) => {
   try {

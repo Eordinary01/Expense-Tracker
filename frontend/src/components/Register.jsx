@@ -21,8 +21,8 @@ const Register = () => {
     password: '',
   });
   const navigate = useNavigate();
-  const bgColor = useColorModeValue('purple.100', 'purple.900');
-  const textColor = useColorModeValue('purple.900', 'white');
+  const bgColor = useColorModeValue('purple.300', 'purple.900');
+  const textColor = useColorModeValue('black', 'white');
 
   useEffect(() => {
     if (message === 'Registration successful. Redirecting to login...') {
@@ -49,7 +49,7 @@ const Register = () => {
         py={12}
         borderRadius={8}
         boxShadow="lg"
-        bg="white"
+        bg="purple.700"
       >
         <Box textAlign="center">
           <Heading color={textColor}>Register</Heading>
