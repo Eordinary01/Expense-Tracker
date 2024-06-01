@@ -1,7 +1,8 @@
 // src/components/Header.js
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Flex, Text, Button, Link, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
+import { AuthContext } from './context';
 
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -9,6 +10,7 @@ const Header = () => {
   const textColor = useColorModeValue('purple', 'purple');
   const buttonBgColor = useColorModeValue('purple.500', 'purple.300');
   const buttonTextColor = useColorModeValue('white', 'black');
+  const { token, handleLogout } = useContext(AuthContext);
 
   return (
     <Box bg={bgColor} color={textColor} py={4}>
@@ -23,15 +25,35 @@ const Header = () => {
             </Button>
           </Link>
           <Link as={RouterLink} to="/transactions" mr={4}>
-            <Button colorScheme="purple" variant="outline">
+            <Button colorScheme="purple" variant="outline" isDisabled>
               Transactions
             </Button>
           </Link>
           <Link as={RouterLink} to="/settings" mr={4}>
-            <Button colorScheme="purple" variant="outline">
+            <Button colorScheme="purple" variant="outline" isDisabled>
               Settings
             </Button>
           </Link>
+          {token ? (
+            <Button onClick={handleLogout} colorScheme="red" ml={4}>
+              Logout
+            </Button>
+          ) :
+           (
+            <>
+              <Link as={RouterLink} to="/login" mr={4}>
+                <Button colorScheme="purple" variant="outline" isDisabled>
+                  Login
+                </Button>
+              </Link>
+              <Link as={RouterLink} to="/register" mr={4}>
+                <Button colorScheme="purple" variant="outline" isDisabled>
+                  Register
+                </Button>
+              </Link>
+            </>
+          )
+          }
           <Button onClick={toggleColorMode} bg={buttonBgColor} color={buttonTextColor} ml={4}>
             {colorMode === 'light' ? 'Dark Mode' : 'Light Mode'}
           </Button>

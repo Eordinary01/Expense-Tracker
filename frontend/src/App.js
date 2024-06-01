@@ -1,6 +1,5 @@
-// src/App.js
-import React, { useEffect, useState, useContext } from "react";
-import { Route, Routes, useNavigate,Navigate} from "react-router-dom";
+import React, { useEffect, useContext } from "react";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import {
   ChakraProvider,
   useDisclosure,
@@ -16,29 +15,27 @@ import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Register from "./components/Register";
-// import Transactions from './components/Transactions';
-// import Settings from './components/Settings';
 import { AuthContext } from "./components/context";
 
 const App = () => {
-  const { user } = useContext(AuthContext);
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true }); // Set defaultIsOpen to true
+  const { token } = useContext(AuthContext);
+  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: !token });
   const navigate = useNavigate();
 
-
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
-
+  // useEffect(() => {
+  //   if (token) {
+  //     navigate("/dashboard");
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // }, [token, navigate]);
 
   const handleUserChoice = (choice) => {
     onClose();
     if (choice) {
-      // Do nothing since Register is already rendered on the root route
+      navigate("/register");
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   };
 
@@ -48,11 +45,11 @@ const App = () => {
       <Routes>
         <Route
           path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to="/login" replace />}
+          element={token ? <Dashboard /> : <Navigate to="/login" replace />}
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Register />} />
-        {/* Render Register component on the root route */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Navigate to={token ? "/dashboard" : "/login"} replace />} />
       </Routes>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
