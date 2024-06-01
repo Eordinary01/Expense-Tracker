@@ -1,29 +1,45 @@
 // src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Use named import
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { register, login } from '../api';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
       try {
-        const decodedUser = jwtDecode(token);
+        const decodedUser = jwtDecode(storedToken);
         setUser(decodedUser);
-        
+        setToken(storedToken);
       } catch (error) {
         console.error('Failed to decode token:', error);
         localStorage.removeItem('token');
-        setToken(null);
       }
     }
-  }, [token]);
+  }, []);
+
+  useEffect(() => {
+    if (message === 'Registration successful. Redirecting to login...') {
+      setTimeout(() => {
+        navigate('/login');
+        setMessage('');
+      }, 3000);
+    } else if (message === 'Login successful. Redirecting to Dashboard!') {
+      setTimeout(() => {
+        navigate('/dashboard');
+        setMessage('');
+      }, 3000);
+    }
+  }, [message, navigate]);
 
   const handleRegister = async (userData) => {
     setIsLoading(true);
@@ -31,14 +47,10 @@ const AuthProvider = ({ children }) => {
     try {
       const data = await register(userData);
       setToken(data.token);
-     
       localStorage.setItem('token', data.token);
       const decodedUser = jwtDecode(data.token);
       setUser(decodedUser);
       setMessage('Registration successful. Redirecting to login...');
-      setTimeout(() => {
-        setMessage('');
-      }, 3000);
     } catch (error) {
       console.error('Registration error:', error);
       if (error.response && error.response.data.errors) {
@@ -57,14 +69,10 @@ const AuthProvider = ({ children }) => {
     try {
       const data = await login(userData);
       setToken(data.token);
-      console.log(userData)
       localStorage.setItem('token', data.token);
       const decodedUser = jwtDecode(data.token);
       setUser(decodedUser);
       setMessage('Login successful. Redirecting to Dashboard!');
-      setTimeout(() => {
-        setMessage('');
-      }, 3000);
     } catch (error) {
       console.error('Login error:', error);
       if (error.response && error.response.data.msg) {
@@ -101,6 +109,5 @@ const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
 
 export { AuthContext, AuthProvider };
