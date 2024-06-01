@@ -53,7 +53,7 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         {/* <Route path="/transactions" element={user ? <Transactions /> : <Login />} />
         <Route path="/settings" element={user ? <Settings /> : <Login />} /> */}
-        <Route path="/" element={user ? <Dashboard /> : null} />
+        <Route path="/" element={!user ? <Dashboard /> : null} />
       </Routes>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

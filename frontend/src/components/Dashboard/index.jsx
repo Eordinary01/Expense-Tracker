@@ -40,27 +40,30 @@ const Dashboard = () => {
   const buttonTextColor = useColorModeValue("white", "gray.800");
   const incomeBoxBgColor = useColorModeValue("green.50", "green.900");
   const expenseBoxBgColor = useColorModeValue("red.50", "red.900");
-
   useEffect(() => {
     const fetchTransactions = async () => {
-      // console.log("User object:", user);
+      console.log('Fetching transactions...');
       try {
         setIsLoading(true);
         setError(null);
         const data = await getTransactions(token);
         setTransactions(data);
       } catch (error) {
-        setError("Failed to fetch transactions");
-        console.error("Failed to fetch transactions:", error);
+        setError('Failed to fetch transactions');
+        console.error('Failed to fetch transactions:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     if (token) {
+      // console.log('Token available, fetching transactions');
       fetchTransactions();
+    } else {
+      console.log('No token available');
     }
   }, [token, user]);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

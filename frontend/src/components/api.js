@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://expense-tracker-738d.onrender.com/api";
+const API_URL = "http://127.0.0.1:8800/api";
 
 const register = async (userData) => {
   try {
@@ -49,14 +49,14 @@ const createTransaction = async (transactionData) => {
   }
 };
 
-const getTransactions = async () => {
-  const token = localStorage.getItem('token');
-
+const getTransactions = async (token) => {
   if (!token) {
+    console.error('No token found');
     throw new Error('No token, authorization denied');
   }
 
   try {
+    // console.log('Fetching transactions with token:', token);
     const response = await axios.get(`${API_URL}/transactions`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ const getTransactions = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error('Error fetching transactions:', error.response ? error.response.data : error);
     throw error;
   }
 };
