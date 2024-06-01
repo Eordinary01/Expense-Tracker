@@ -1,4 +1,3 @@
-// src/components/Dashboard.js
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context";
 import { getTransactions, createTransaction } from "../api";
@@ -12,11 +11,9 @@ import {
   Input,
   Select,
   useColorModeValue,
-  Grid,
-  GridItem,
-  Stack,
-  Divider,
   Flex,
+  Spinner,
+  Stack
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
@@ -30,6 +27,7 @@ const Dashboard = () => {
     amount: "",
     type: "income",
   });
+  const [isCreating, setIsCreating] = useState(false); // New state variable
 
   const bgColor = useColorModeValue("gray.100", "gray.900");
   const textColor = useColorModeValue("gray.900", "gray.100");
@@ -40,6 +38,7 @@ const Dashboard = () => {
   const buttonTextColor = useColorModeValue("white", "gray.800");
   const incomeBoxBgColor = useColorModeValue("green.50", "green.900");
   const expenseBoxBgColor = useColorModeValue("red.50", "red.900");
+
   useEffect(() => {
     const fetchTransactions = async () => {
       console.log('Fetching transactions...');
@@ -55,7 +54,7 @@ const Dashboard = () => {
         setIsLoading(false);
       }
     };
-  
+
     if (token) {
       // console.log('Token available, fetching transactions');
       fetchTransactions();
@@ -63,7 +62,6 @@ const Dashboard = () => {
       console.log('No token available');
     }
   }, [token, user]);
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -72,11 +70,14 @@ const Dashboard = () => {
 
   const handleCreateTransaction = async () => {
     try {
+      setIsCreating(true); // Set loading state
       const newTransactionData = await createTransaction(newTransaction, token);
       setTransactions([...transactions, newTransactionData]);
       setNewTransaction({ description: "", amount: "", type: "income" });
     } catch (error) {
       console.error("Error creating transaction:", error);
+    } finally {
+      setIsCreating(false); // Reset loading state
     }
   };
 
@@ -125,7 +126,7 @@ const Dashboard = () => {
                     <strong>Description:</strong> {transaction.description}
                   </Text>
                   <Text>
-                    <strong>Amount:</strong> {transaction.amount}
+                    <strong>Amount:</strong> ₹{transaction.amount}
                   </Text>
                   <Text>
                     <strong>Date:</strong> {format(new Date(transaction.createdAt), 'PPpp')}
@@ -191,6 +192,7 @@ const Dashboard = () => {
               color={buttonTextColor}
               _hover={{ bg: buttonBgColor }}
               onClick={handleCreateTransaction}
+              isLoading={isCreating} // Add loading state to button
             >
               Create Transaction
             </Button>
