@@ -12,10 +12,14 @@ import {
   Select,
   useColorModeValue,
   Flex,
+  Stack,
   Spinner,
-  Stack
 } from "@chakra-ui/react";
 import { format } from "date-fns";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
   const { user, token, handleLogout } = useContext(AuthContext);
@@ -27,7 +31,7 @@ const Dashboard = () => {
     amount: "",
     type: "income",
   });
-  const [isCreating, setIsCreating] = useState(false); // New state variable
+  const [isCreating, setIsCreating] = useState(false);
 
   const bgColor = useColorModeValue("gray.100", "gray.900");
   const textColor = useColorModeValue("gray.900", "gray.100");
@@ -41,25 +45,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      console.log('Fetching transactions...');
       try {
         setIsLoading(true);
         setError(null);
         const data = await getTransactions(token);
         setTransactions(data);
       } catch (error) {
-        setError('Failed to fetch transactions');
-        console.error('Failed to fetch transactions:', error);
+        setError("Failed to fetch transactions");
+        console.error("Failed to fetch transactions:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (token) {
-      // console.log('Token available, fetching transactions');
       fetchTransactions();
-    } else {
-      console.log('No token available');
     }
   }, [token, user]);
 
@@ -70,14 +70,14 @@ const Dashboard = () => {
 
   const handleCreateTransaction = async () => {
     try {
-      setIsCreating(true); // Set loading state
+      setIsCreating(true);
       const newTransactionData = await createTransaction(newTransaction, token);
       setTransactions([...transactions, newTransactionData]);
       setNewTransaction({ description: "", amount: "", type: "income" });
     } catch (error) {
       console.error("Error creating transaction:", error);
     } finally {
-      setIsCreating(false); // Reset loading state
+      setIsCreating(false);
     }
   };
 
@@ -92,6 +92,25 @@ const Dashboard = () => {
   if (!user) {
     return <Text>Unauthorized</Text>;
   }
+
+  const incomeTransactions = transactions.filter((transaction) => transaction.type === "income");
+  const expenseTransactions = transactions.filter((transaction) => transaction.type === "expense");
+
+  const chartData = {
+    labels: ["Income", "Expenses"],
+    datasets: [
+      {
+        label: "Amount",
+        data: [
+          incomeTransactions.reduce((total, transaction) => total + transaction.amount, 0),
+          expenseTransactions.reduce((total, transaction) => total + transaction.amount, 0),
+        ],
+        backgroundColor: [incomeColor, expenseColor],
+        borderColor: [incomeColor, expenseColor],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <Box bg={bgColor} color={textColor} minH="100vh" p={4}>
@@ -110,58 +129,54 @@ const Dashboard = () => {
             <Heading size="md" mb="4" color={incomeColor}>
               Income
             </Heading>
-            {transactions
-              .filter((transaction) => transaction.type === "income")
-              .map((transaction) => (
-                <Box
-                  key={transaction._id}
-                  p={3}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  mb={2}
-                  color={incomeColor}
-                  bg={incomeBoxBgColor}
-                >
-                  <Text>
-                    <strong>Description:</strong> {transaction.description}
-                  </Text>
-                  <Text>
-                    <strong>Amount:</strong> ₹{transaction.amount}
-                  </Text>
-                  <Text>
-                    <strong>Date:</strong> {format(new Date(transaction.createdAt), 'PPpp')}
-                  </Text>
-                </Box>
-              ))}
+            {incomeTransactions.map((transaction) => (
+              <Box
+                key={transaction._id}
+                p={3}
+                borderWidth="1px"
+                borderRadius="md"
+                mb={2}
+                color={incomeColor}
+                bg={incomeBoxBgColor}
+              >
+                <Text>
+                  <strong>Description:</strong> {transaction.description}
+                </Text>
+                <Text>
+                  <strong>Amount:</strong> ₹{transaction.amount}
+                </Text>
+                <Text>
+                  <strong>Date:</strong> {format(new Date(transaction.createdAt), "PPpp")}
+                </Text>
+              </Box>
+            ))}
           </Box>
 
           <Box p={4} borderWidth="1px" borderRadius="lg" bg={cardBgColor} flex="1" ml="2">
             <Heading size="md" mb="4" color={expenseColor}>
               Expenses
             </Heading>
-            {transactions
-              .filter((transaction) => transaction.type === "expense")
-              .map((transaction) => (
-                <Box
-                  key={transaction._id}
-                  p={3}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  mb={2}
-                  color={expenseColor}
-                  bg={expenseBoxBgColor}
-                >
-                  <Text>
-                    <strong>Description:</strong> {transaction.description}
-                  </Text>
-                  <Text>
-                    <strong>Amount:</strong> {transaction.amount}
-                  </Text>
-                  <Text>
-                    <strong>Date:</strong> {format(new Date(transaction.createdAt), 'PPpp')}
-                  </Text>
-                </Box>
-              ))}
+            {expenseTransactions.map((transaction) => (
+              <Box
+                key={transaction._id}
+                p={3}
+                borderWidth="1px"
+                borderRadius="md"
+                mb={2}
+                color={expenseColor}
+                bg={expenseBoxBgColor}
+              >
+                <Text>
+                  <strong>Description:</strong> {transaction.description}
+                </Text>
+                <Text>
+                  <strong>Amount:</strong> ₹{transaction.amount}
+                </Text>
+                <Text>
+                  <strong>Date:</strong> {format(new Date(transaction.createdAt), "PPpp")}
+                </Text>
+              </Box>
+            ))}
           </Box>
         </Flex>
 
@@ -192,11 +207,18 @@ const Dashboard = () => {
               color={buttonTextColor}
               _hover={{ bg: buttonBgColor }}
               onClick={handleCreateTransaction}
-              isLoading={isCreating} // Add loading state to button
+              isLoading={isCreating}
             >
               Create Transaction
             </Button>
           </Stack>
+        </Box>
+
+        <Box mt={8}>
+          <Heading size="md" mb="4">
+            Income vs Expenses
+          </Heading>
+          <Bar data={chartData} />
         </Box>
 
         <Button
