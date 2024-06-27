@@ -11,14 +11,11 @@ app.use(express.json({ extended: false }));
 
 // Apply CORS middleware before defining any routes
 app.use(cors({
-  origin: [
-    'https://expense-trackerf.vercel.app',  // Remove trailing slash
-    'http://localhost:3000'
-  ],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  credentials: true,
-  optionsSuccessStatus: 204
-}));
+    origin: '*',  // Allow all origins temporarily for debugging
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    optionsSuccessStatus: 204
+  }));
 
 app.get('/', (req, res) => res.send("API RUNNING"));
 
