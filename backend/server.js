@@ -10,6 +10,15 @@ connectDB();
 app.use(cors());
 app.use(express.json({ extended: false }));
 
+app.use(cors({
+    origin: [
+      'https://expense-trackerf.vercel.app/'
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    optionsSuccessStatus: 204
+  }));
+
 app.get('/',(req,res)=>res.send("API RUNNING"));
 
 app.use('/api/auth',require("./routes/auth"));
