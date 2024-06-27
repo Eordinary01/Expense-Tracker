@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://expense-tracker-738d.onrender.com/api";
+const API_URL = "https://expense-tracker-xi-eight.vercel.app/api";
 
 const register = async (userData) => {
   try {
